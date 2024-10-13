@@ -16,6 +16,7 @@ import { ToastModule } from 'primeng/toast';
 import { DropdownModule } from 'primeng/dropdown';
 import { CategoryService } from '../../core/services/category.service';
 import { ICategory } from '../../core/models/category.models';
+import { CarouselModule } from 'primeng/carousel';
 
 @Component({
   selector: 'app-products',
@@ -32,6 +33,7 @@ import { ICategory } from '../../core/models/category.models';
     ToolbarModule,
     ToastModule,
     DropdownModule,
+    CarouselModule,
   ],
   templateUrl: './products.component.html',
   styles: [
