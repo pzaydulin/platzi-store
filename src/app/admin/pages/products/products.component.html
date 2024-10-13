@@ -61,7 +61,11 @@
 
 <p-dialog [(visible)]="productDialog" [breakpoints]="{'960px': '75vw', '640px': '100vw'}" [style]="{width: '50vw'}" header="Product Details" [modal]="true" styleClass="p-fluid">
     <ng-template pTemplate="content">
-        <img [src]="product.images[0]" class="product-image" *ngIf="product.images[0]">
+        <p-carousel [value]="product.images">
+            <ng-template let-img pTemplate="item">
+                <img [src]="img" class="product-image">
+            </ng-template>
+        </p-carousel>
         <div class="field mb-3">
             <label for="name">Title</label>
             <input type="text" pInputText id="title" [(ngModel)]="product.title" required autofocus />
