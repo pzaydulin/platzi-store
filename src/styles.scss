@@ -1,17 +1,110 @@
-@import "primeng/resources/themes/rhea/theme.css";
+/* Tailwind CSS */
+
+@layer tailwind-base, primeng, tailwind-components, tailwind-utilities;
+
+/* Primeng Settings */
+@import "tailwindcss/base.css" layer(tailwind-base);
 @import "primeng/resources/primeng.css";
+@import "primeng/resources/themes/lara-light-blue/theme.css";
 @import "primeicons/primeicons.css";
+@import "tailwindcss/components.css" layer(tailwind-components);
+@import "tailwindcss/utilities.css" layer(tailwind-utilities);
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-@layer tailwind-base, primeng, tailwind-utilities; 
-@layer tailwind-base { 
-    @tailwind base; 
-} 
-@layer primeng; 
-@layer tailwind-utilities { 
-    @tailwind components; 
-    @tailwind utilities; 
+@layer tailwind-base {
+  @tailwind base;
+  * {
+    /* @apply transition-all duration-300 ease-in-out; */
+  }
 }
+@layer tailwind-components {
+  @tailwind components;
+}
+@layer tailwind-utilities {
+  @tailwind utilities;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-size: 14px;
+}
+
+
+:root {
+  --color-primary: #ff73b3;
+  --color-secondary: #6f72b9;
+  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+      Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+      "Segoe UI Symbol";  
+  --surface-card: #193450;
+}
+
+
+
+h1, h2, h3, h4, h5, h6 {
+    margin: 1rem 0;
+    font-family: inherit;
+    font-weight: 600;
+    line-height: 1.2;
+    color: inherit;
+}
+
+h5 {
+    font-size: 1.25rem;
+    margin: 5px 0px;
+}
+
+.p-button {
+  padding: 6px 12px;
+}
+
+.p-button.p-button-icon-only {
+  padding: 4px 14px;
+  width: 0px;
+}
+.p-button.p-button-icon-only.p-button-rounded {
+  border-radius: 50%;
+  height: inherit;
+}
+.p-button.p-button-icon-only.p-button-rounded {
+  height: inherit;
+}
+.p-checkbox {
+  width: 18px;
+  height: 18px;
+}
+.p-checkbox .p-checkbox-box {
+  height: inherit;
+}
+
+.p-inputtext {
+  padding: 6px;
+}
+.p-input-icon-left > .p-inputtext {
+    padding-left: 2.5rem;
+}
+.justify-between {
+    justify-content: space-between;
+}
+
+.active {
+  border-bottom: 2px solid #97c93f;
+  transform: scale(1.1);
+  transition: border-bottom 0.3s ease, color 0.3s ease, transform 0.3s ease;
+}
+
+
+
+.card {
+    padding: 2rem;
+    margin-bottom: 2rem
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between
+}
+
+
