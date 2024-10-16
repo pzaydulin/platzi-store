@@ -1,0 +1,23 @@
+
+:host ::ng-deep .p-dialog .product-image {
+  width: 200px;
+  margin: 0 auto 2rem auto;
+  display: block;
+}
+
+:host ::ng-deep .p-fileupload-content {
+    border: 0;
+    padding: 20px 10px;
+}
+:host ::ng-deep .p-fileupload-buttonbar {
+    padding-bottom: 0;
+    border: 0;
+}
+
+:host ::ng-deep .p-panel-content {
+    padding: 0;
+}
+
+:host ::ng-deep .p-fileupload-content .p-progressbar {
+    display: none;
+}
