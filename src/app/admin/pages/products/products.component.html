@@ -1,5 +1,5 @@
 
-<!-- <p-toast></p-toast> -->
+<p-toast></p-toast>
 
 <div class="card">
     <p-toolbar styleClass="mb-4 gap-2">
@@ -25,14 +25,14 @@
                 <h5 class="m-0">Manage Products</h5>
                 <span class="p-input-icon-left">
                     <i class="pi pi-search"></i>
-                    <input pInputText type="text" (input)="dt.filterGlobal($any($event.target).value, 'contains')" placeholder="Search..." />
+                    <input pInputText id="search" type="text" (input)="dt.filterGlobal($any($event.target).value, 'contains')" placeholder="Search..." />
                 </span>
             </div>
         </ng-template>
         <ng-template pTemplate="header">
             <tr>
                 <th>
-                    <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                    <p-tableHeaderCheckbox inputId="allItems"></p-tableHeaderCheckbox>
                 </th>
                 <th>Title</th>
                 <th>Price</th>
@@ -44,7 +44,7 @@
         <ng-template pTemplate="body" let-product>
             <tr>
                 <td>
-                    <p-tableCheckbox [value]="product"></p-tableCheckbox>
+                    <p-tableCheckbox [inputId]="product.id" [value]="product"></p-tableCheckbox>
                 </td>
                 <td>{{ product.title }}</td>
                 <td>{{ product.price | currency }}</td>
@@ -66,18 +66,46 @@
                 <img [src]="img" class="product-image">
             </ng-template>
         </p-carousel>
+
+        <p-panel header="Upload Files" [toggleable]="true" [collapsed]="true">
+            <p-fileUpload (onSelect)="onSelect($event)"
+                multiple="multiple" accept="image/*" maxFileSize="1000000"
+                >           
+                <ng-template pTemplate="header" let-files let-chooseCallback="chooseCallback" let-clearCallback="clearCallback" let-uploadCallback="uploadCallback">
+                    <div class="flex flex-wrap justify-content-between align-items-center flex-1 gap-2">
+                        <div class="flex gap-2">
+                            <p-button (onClick)="chooseFiles($event, chooseCallback)" icon="pi pi-images" [rounded]="true" />
+                            <!-- <p-button icon="pi pi-cloud-upload" [rounded]="true" severity="success" [disabled]="!files || files.length === 0" /> -->
+                            <p-button (onClick)="clearFiles(clearCallback)" icon="pi pi-times" [rounded]="true" severity="danger" [disabled]="!files || files.length === 0" />
+                        </div>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="content">
+                    <ul *ngIf="uploadedFiles.length">
+                        <li *ngFor="let file of uploadedFiles">{{file.name}} - {{file.size}} bytes</li>
+                    </ul>
+                </ng-template>
+                <ng-template pTemplate="empty">
+                    <div class="flex flex-col items-center justify-center">
+                        <i class="pi pi-cloud-upload text-6xl text-gray-300"></i>
+                        <p class="mt-3 mb-0">Drag and drop files here to upload.</p>
+                    </div>
+                </ng-template>        
+            </p-fileUpload>
+        </p-panel>
+
         <div class="field mb-3">
-            <label for="name">Title</label>
-            <input type="text" pInputText id="title" [(ngModel)]="product.title" required autofocus />
+            <label for="title">Title</label>
+            <input type="text" pInputText id="title" name="title" [(ngModel)]="product.title" required autofocus />
             <!-- <small class="p-error" *ngIf="submitted && !product.title">Name is required.</small> -->
         </div>
         <div class="field mb-3">
             <label for="description">Description</label>
-            <textarea id="description" pInputTextarea [(ngModel)]="product.description" required rows="4" cols="20"></textarea>
+            <textarea id="description" name="description" pInputTextarea [(ngModel)]="product.description" required rows="4" cols="20"></textarea>
         </div>
         <div class="field mb-3">
-            <label for="category">Category</label>
-            <p-dropdown id="category" appendTo="body" [options]="categories" [(ngModel)]="selectedCategory" optionLabel="name" placeholder="Select a Category">
+            <p>Category</p>
+            <p-dropdown appendTo="body" [options]="categories" [(ngModel)]="selectedCategory" optionLabel="name" placeholder="Select a Category">
                 <ng-template pTemplate="selectedItem">
                     <div *ngIf="selectedCategory" class="flex flex-1 gap-3 items-center">
                         <img [src]="selectedCategory.image" class="w-10 h-10" />
@@ -134,11 +162,11 @@
         <div class="flex gap-5">
             <div class="flex-1">
                 <label for="price">Price</label>
-                <p-inputNumber id="price" [(ngModel)]="product.price" mode="currency" currency="USD" locale="en-US"></p-inputNumber>
+                <p-inputNumber inputId="price" [(ngModel)]="product.price" mode="currency" currency="USD" locale="en-US"></p-inputNumber>
             </div>
             <div class="flex-1">
                 <label for="quantity">Quantity</label>
-                <p-inputNumber id="quantity" [(ngModel)]="product.price"></p-inputNumber>
+                <p-inputNumber inputId="quantity" [(ngModel)]="product.price"></p-inputNumber>
             </div>
         </div>
     </ng-template>

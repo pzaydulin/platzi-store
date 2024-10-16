@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 import { IProduct } from '../../core/models/product.models';
 import { map, Observable, Subject, takeUntil } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
-import { PrimeNGConfig } from 'primeng/api';
+import { MessageService, PrimeNGConfig } from 'primeng/api';
 import { RippleModule } from 'primeng/ripple';
 import { PaginatorModule } from 'primeng/paginator';
 import { DialogModule } from 'primeng/dialog';
@@ -17,12 +17,15 @@ import { DropdownModule } from 'primeng/dropdown';
 import { CategoryService } from '../../core/services/category.service';
 import { ICategory } from '../../core/models/category.models';
 import { CarouselModule } from 'primeng/carousel';
+import { FileSelectEvent, FileUploadEvent, FileUploadModule } from 'primeng/fileupload';
+import { PanelModule } from 'primeng/panel';
 
 @Component({
   selector: 'app-products',
   standalone: true,
   imports: [
     CommonModule,
+    ToastModule,
     TableModule,
     ButtonModule,
     RippleModule,
@@ -31,20 +34,14 @@ import { CarouselModule } from 'primeng/carousel';
     InputTextModule,
     InputTextareaModule,
     ToolbarModule,
-    ToastModule,
     DropdownModule,
     CarouselModule,
+    FileUploadModule,
+    PanelModule
   ],
   templateUrl: './products.component.html',
-  styles: [
-    `
-      :host ::ng-deep .p-dialog .product-image {
-        width: 200px;
-        margin: 0 auto 2rem auto;
-        display: block;
-      }
-    `,
-  ],
+  styleUrl:  './products.component.scss',
+  providers: [MessageService],
 })
 export class ProductsComponent implements OnInit, OnDestroy {
   constructor() {}
@@ -58,6 +55,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
   private productService: ProductService = inject(ProductService);
   private categoryService: CategoryService = inject(CategoryService);
   private primengConfig: PrimeNGConfig = inject(PrimeNGConfig);
+  private messageService: MessageService = inject(MessageService);
 
   protected products: IProduct[] = [];
   protected product: IProduct = new IProduct();
@@ -99,5 +97,31 @@ export class ProductsComponent implements OnInit, OnDestroy {
     );
 
     this.productDialog = true;
+  }
+
+  uploadedFiles: any[] = [];
+
+  onSelect(event: FileSelectEvent) {
+    // for (let file of event.files) {
+    //   this.uploadedFiles.push(file);
+    // }
+
+    this.uploadedFiles = event.currentFiles;
+
+    this.messageService.add({
+      severity: 'info',
+      summary: 'File Selected',
+      detail: '',
+    });
+    console.log(event);
+  }
+
+  chooseFiles(event: any, callback: any) {
+    callback();
+  }
+
+  clearFiles(callback: any) {
+    this.uploadedFiles = [];
+    callback();
   }
 }
