@@ -1,0 +1,7 @@
+{
+  "/api": {
+    "target": "https://api.escuelajs.co",
+    "secure": false,
+    "changeOrigin": true
+  }
+}

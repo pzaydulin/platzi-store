@@ -59,19 +59,25 @@
     </p-table>
 </div>
 
-<p-dialog [(visible)]="productDialog" [breakpoints]="{'960px': '75vw', '640px': '100vw'}" [style]="{width: '50vw'}" header="Product Details" [modal]="true" styleClass="p-fluid">
+<form #productForm="ngForm">
+<p-dialog [(visible)]="productDialog"  (onHide)="hideDialog()" [breakpoints]="{'960px': '75vw', '640px': '100vw'}" [style]="{width: '50vw'}" header="Product Details" [modal]="true" styleClass="p-fluid">
     <ng-template pTemplate="content">
         <p-carousel [value]="product.images">
             <ng-template let-img pTemplate="item">
-                <img [src]="img" class="product-image">
+                <div class="relative">
+                    <div class="absolute top-1 right-3">
+                        <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning mb-1" (click)="deleteImage(img)"></button>
+                    </div>
+                    <input type="image" [src]="img" class="product-image" autofocus>
+                </div>
             </ng-template>
         </p-carousel>
 
-        <p-panel header="Upload Files" [toggleable]="true" [collapsed]="true">
-            <p-fileUpload (onSelect)="onSelect($event)"
+        <p-panel header="Upload Images" [toggleable]="true" [collapsed]="true">
+            <p-fileUpload (onSelect)="onSelect($event)" (onRemove)="onRemove($event)"
                 multiple="multiple" accept="image/*" maxFileSize="1000000"
                 >           
-                <ng-template pTemplate="header" let-files let-chooseCallback="chooseCallback" let-clearCallback="clearCallback" let-uploadCallback="uploadCallback">
+                <ng-template pTemplate="header" let-files let-chooseCallback="chooseCallback" let-clearCallback="clearCallback"  let-uploadCallback="uploadCallback">
                     <div class="flex flex-wrap justify-content-between align-items-center flex-1 gap-2">
                         <div class="flex gap-2">
                             <p-button (onClick)="chooseFiles($event, chooseCallback)" icon="pi pi-images" [rounded]="true" />
@@ -96,16 +102,18 @@
 
         <div class="field mb-3">
             <label for="title">Title</label>
-            <input type="text" pInputText id="title" name="title" [(ngModel)]="product.title" required autofocus />
+            <input type="text" pInputText id="title" name="title" [(ngModel)]="product.title"  #title="ngModel" required />
             <!-- <small class="p-error" *ngIf="submitted && !product.title">Name is required.</small> -->
+            <small *ngIf="title.invalid && (title.dirty || title.touched)" class="p-error">Title is required.</small>
         </div>
         <div class="field mb-3">
             <label for="description">Description</label>
-            <textarea id="description" name="description" pInputTextarea [(ngModel)]="product.description" required rows="4" cols="20"></textarea>
+            <textarea pInputTextarea id="description" name="description" #description="ngModel" [(ngModel)]="product.description" required rows="4" cols="20"></textarea>
+            <small *ngIf="description.invalid && (description.dirty || description.touched)" class="p-error">Description is required.</small>
         </div>
         <div class="field mb-3">
             <p>Category</p>
-            <p-dropdown appendTo="body" [options]="categories" [(ngModel)]="selectedCategory" optionLabel="name" placeholder="Select a Category">
+            <p-dropdown appendTo="body" [options]="categories" [(ngModel)]="selectedCategory" name="ctg" #ctg="ngModel" optionLabel="name" placeholder="Select a Category" required>
                 <ng-template pTemplate="selectedItem">
                     <div *ngIf="selectedCategory" class="flex flex-1 gap-3 items-center">
                         <img [src]="selectedCategory.image" class="w-10 h-10" />
@@ -119,6 +127,7 @@
                     </div>
                 </ng-template>                
             </p-dropdown>
+            <small *ngIf="ctg.invalid && (ctg.dirty || ctg.touched)" class="p-error">Category is required.</small>
         </div>
         <!-- <div class="field">
             <label for="inventoryStatus">Inventory Status</label>
@@ -159,20 +168,15 @@
         - add product delete feature 
         - add product edit feature
  -->
-        <div class="flex gap-5">
-            <div class="flex-1">
-                <label for="price">Price</label>
-                <p-inputNumber inputId="price" [(ngModel)]="product.price" mode="currency" currency="USD" locale="en-US"></p-inputNumber>
-            </div>
-            <div class="flex-1">
-                <label for="quantity">Quantity</label>
-                <p-inputNumber inputId="quantity" [(ngModel)]="product.price"></p-inputNumber>
-            </div>
+        <div class="">
+            <label for="price">Price</label>
+            <p-inputNumber inputId="price" [(ngModel)]="product.price" name="price" mode="currency" currency="USD" locale="en-US"></p-inputNumber>
         </div>
     </ng-template>
 
-    <!-- <ng-template pTemplate="footer">
+    <ng-template pTemplate="footer">
         <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
-        <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="saveProduct()"></button>
-    </ng-template> -->
+        <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" [disabled]="productForm.invalid" (click)="saveProduct()"></button>
+    </ng-template>
 </p-dialog>
+</form>
