@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 import { initProduct, IProduct } from '../../core/models/product.models';
 import { catchError, delay, forkJoin, map, of, Subject, takeUntil, tap } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
-import { MessageService, PrimeNGConfig } from 'primeng/api';
+import { ConfirmationService, MessageService, PrimeNGConfig } from 'primeng/api';
 import { RippleModule } from 'primeng/ripple';
 import { PaginatorModule } from 'primeng/paginator';
 import { DialogModule } from 'primeng/dialog';
@@ -21,6 +21,7 @@ import { FileRemoveEvent, FileSelectEvent, FileUploadEvent, FileUploadModule } f
 import { PanelModule } from 'primeng/panel';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { toObservable } from '@angular/core/rxjs-interop';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
 @Component({
   selector: 'app-products',
@@ -40,10 +41,11 @@ import { toObservable } from '@angular/core/rxjs-interop';
     CarouselModule,
     FileUploadModule,
     PanelModule,
+    ConfirmDialogModule,
   ],
   templateUrl: './products.component.html',
   styleUrl: './products.component.scss',
-  providers: [MessageService],
+  providers: [MessageService, ConfirmationService],
 })
 export class ProductsComponent implements OnInit, OnDestroy {
   constructor() {}
@@ -58,6 +60,8 @@ export class ProductsComponent implements OnInit, OnDestroy {
   private categoryService: CategoryService = inject(CategoryService);
   private primengConfig: PrimeNGConfig = inject(PrimeNGConfig);
   private messageService: MessageService = inject(MessageService);
+  private confirmationService: ConfirmationService =
+    inject(ConfirmationService);
 
   protected products: IProduct[] = [];
   protected product: IProduct = initProduct;
@@ -65,6 +69,8 @@ export class ProductsComponent implements OnInit, OnDestroy {
 
   protected categories: ICategory[] = [];
   protected selectedCategory: ICategory | undefined;
+  protected selectedProducts!: IProduct[];
+  protected uploadedFiles: any[] = [];
 
   ngOnInit(): void {
     this.primengConfig.ripple = true;
@@ -85,13 +91,39 @@ export class ProductsComponent implements OnInit, OnDestroy {
       )
       .subscribe();
   }
-  openNew() {
-    this.product = initProduct;
-    this.selectedCategory = undefined;
-    // this.submitted = false;
-    this.productDialog = true;
+
+  deleteProduct(id: number): void {
+    this.confirmationService.confirm({
+      header: 'Are you sure?',
+      message: 'Please confirm to delete the selected products.',
+      accept: () => {
+        this.productService.deleteProduct(id).subscribe(() => {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Successful',
+            detail: 'Product deleted',
+          });
+          this.products = this.products.filter((p) => p.id !== id);
+        });
+      },
+    });
   }
-  deleteProduct(product: IProduct): void {}
+
+  deleteSelectedProducts() {
+    this.confirmationService.confirm({
+      header: 'Are you sure?',
+      message: 'Please confirm to delete the selected products.',
+      accept: () => {
+        this.selectedProducts.forEach((product) => {
+          if(product.id) {
+            this.productService.deleteProduct(product.id).subscribe();
+          }
+        });
+        this.messageService.add({severity: 'success',summary: 'Successful',detail: 'Products deleted'});
+        this.products = this.products.filter((val) => !this.selectedProducts.includes(val));
+      },
+    }); 
+  }
 
   editProduct(product: IProduct): void {
     this.product = { ...product };
@@ -104,48 +136,12 @@ export class ProductsComponent implements OnInit, OnDestroy {
     this.productDialog = true;
   }
 
-  uploadedFiles: any[] = [];
-
-  onSelect(event: FileSelectEvent) {
-    for (let file of event.files) {
-      if (!this.uploadedFiles.find((f) => f.name === file.name)) {
-        this.uploadedFiles.push(file);
-      }
-    }
-
-    // this.uploadedFiles = event.currentFiles;
-
-    this.messageService.add({
-      severity: 'info',
-      summary: 'File Selected',
-      detail: '',
-    });
-    console.log(event);
-  }
-
-  onRemove(event: FileRemoveEvent) {
-    this.uploadedFiles = this.uploadedFiles.filter(
-      (file) => file.name !== event.file.name
-    );
-    console.log('remove', event, this.uploadedFiles);
-  }
-
-  chooseFiles(event: any, callback: any) {
-    callback();
-  }
-
-  clearFiles(callback: any) {
-    this.uploadedFiles = [];
-    callback();
-  }
-
   saveProduct() {
     this.product.category = this.selectedCategory;
     this.product.categoryId = this.selectedCategory?.id;
 
     const { creationAt, updatedAt, ...productDTO } = this.product;
 
-    let formData = new FormData();
     let lengthUploadedFiles = this.uploadedFiles.length;
 
     // Создаем массив наблюдаемых объектов для загрузки файлов
@@ -172,28 +168,25 @@ export class ProductsComponent implements OnInit, OnDestroy {
       uploadObservables = [of(null)];
       console.log('uploadObservables', uploadObservables);
     }
-    
 
     // Используем forkJoin для ожидания завершения всех загрузок
     forkJoin(uploadObservables).subscribe({
       next: (results) => {
-        console.log('results-next: ', results);
-
         // Фильтруем результаты, чтобы убрать null (ошибки)
         const successfulUploads = results.filter((result) => result !== null);
-
-        console.log(
-          'this.uploadedFiles: ',
-          this.uploadedFiles,
-          successfulUploads
-        );
 
         if (successfulUploads.length === lengthUploadedFiles) {
           // Если все файлы успешно загружены, выполняем updateProduct
 
+          if (!productDTO.images.length) {
+            // picture - 'no image available'
+            productDTO.images.push(
+              'https://api.escuelajs.co/api/v1/files/892c.svg'
+            );
+          }
+
           if (this.product.id) {
             // Update product
-
             this.productService
               .updateProduct(this.product.id, productDTO)
               .subscribe({
@@ -211,23 +204,20 @@ export class ProductsComponent implements OnInit, OnDestroy {
                 (product) => product.id === this.product.id
               )
             ] = this.product;
-
             this.products = [...this.products];
             this.productDialog = false;
           } else {
             // Create product
-            this.productService
-              .createProduct(productDTO)
-              .subscribe({
-                next: (res) => {
-                  this.product = res;
-                  console.log('ProductCreated:', res);
-                  this.products.push(this.product);
-                },
-                error: (err) => {
-                  console.log('ОШИБКА create:', err, productDTO);
-                },
-              });            
+            this.productService.createProduct(productDTO).subscribe({
+              next: (res) => {
+                this.product = res;
+                console.log('ProductCreated:', res);
+                this.products.push(this.product);
+              },
+              error: (err) => {
+                console.log('ОШИБКА create:', err, productDTO);
+              },
+            });
           }
         } else {
           console.log('Не все файлы были успешно загружены');
@@ -239,24 +229,57 @@ export class ProductsComponent implements OnInit, OnDestroy {
     });
   }
 
+  openNew() {
+    this.product = initProduct;
+    this.selectedCategory = undefined;
+    // this.submitted = false;
+    this.productDialog = true;
+  }
+
   hideDialog() {
     this.productDialog = false;
     this.product = initProduct;
     this.uploadedFiles = [];
   }
 
+  onSelect(event: FileSelectEvent) {
+    for (let file of event.files) {
+      if (!this.uploadedFiles.find((f) => f.name === file.name)) {
+        this.uploadedFiles.push(file);
+      }
+    }
+    this.messageService.add({
+      severity: 'info',
+      summary: 'Successful',
+      detail: 'File Selected',
+    });
+  }
 
+  onRemove(event: FileRemoveEvent) {
+    this.uploadedFiles = this.uploadedFiles.filter(
+      (file) => file.name !== event.file.name
+    );
+  }
+
+  chooseFiles(event: any, callback: any) {
+    callback();
+  }
+
+  clearFiles(callback: any) {
+    this.uploadedFiles = [];
+    callback();
+  }
   deleteImage(img: any) {
-    this.product.images = this.product.images.filter((i) => i!== img);
+    this.product.images = this.product.images.filter((i) => i !== img);
   }
 
-  private sanitizer: DomSanitizer = inject(DomSanitizer);
-  sanitizeImageUrl(imageUrl: any) {
-    return imageUrl;
+  // private sanitizer: DomSanitizer = inject(DomSanitizer);
+  // sanitizeImageUrl(imageUrl: any) {
+  //   return imageUrl;
 
-    let url = this.sanitizer.bypassSecurityTrustUrl(imageUrl);
-    // console.log('url:', url, imageUrl);
+  //   let url = this.sanitizer.bypassSecurityTrustUrl(imageUrl);
+  //   // console.log('url:', url, imageUrl);
 
-    return url;
-  }
+  //   return url;
+  // }
 }

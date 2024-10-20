@@ -27,8 +27,8 @@ export class ProductService {
     );
   }
 
-  deleteProduct(id: number): void {
-    this.http.delete(`${apiEndpoint.PRODUCTS.DELETE}/${id}`).subscribe();
+  deleteProduct(id: number) {
+    return this.http.delete(`${apiEndpoint.PRODUCTS.DELETE}/${id}`);
   }
 
   filesUpload(image: FormData): Observable<any> {
