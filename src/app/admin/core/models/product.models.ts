@@ -1,25 +1,26 @@
 import { ICategory } from "./category.models";
 
 export interface IProduct {
-  id: number;
+  id?: number;
   title: string;
   price: number;
   description: string;
   images: string[];
-  creationAt: string;
-  updatedAt: string;
-  category: ICategory;
+  creationAt?: string;
+  updatedAt?: string;
+  categoryId?: number;
+  category?: ICategory;
 }
 
 
-// initProduct = {
-//   id: 0,
-//   title: "",
-//   price: 0,
-//   description: "",
-//   images: []
-// }
+export const initProduct = {
+  title: "",
+  price: 0,
+  description: "",
+  categoryId: 0,
+  images: []
+}
 
 export class IProduct implements IProduct {
-
+  
 }
