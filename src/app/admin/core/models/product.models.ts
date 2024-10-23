@@ -15,12 +15,8 @@ export interface IProduct {
 
 export const initProduct = {
   title: "",
-  price: 0,
+  price: 1,
   description: "",
   categoryId: 0,
   images: []
-}
-
-export class IProduct implements IProduct {
-  
 }
