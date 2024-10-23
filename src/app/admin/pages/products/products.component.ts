@@ -93,9 +93,10 @@ export class ProductsComponent implements OnInit, OnDestroy {
   }
 
   deleteProduct(id: number): void {
+    
     this.confirmationService.confirm({
       header: 'Are you sure?',
-      message: 'Please confirm to delete the selected products.',
+      message: 'Please confirm to delete the product.',
       accept: () => {
         this.productService.deleteProduct(id).subscribe(() => {
           this.messageService.add({
@@ -104,6 +105,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
             detail: 'Product deleted',
           });
           this.products = this.products.filter((p) => p.id !== id);
+          this.selectedProducts = this.selectedProducts.filter((p) => p.id !== id)
         });
       },
     });
@@ -115,14 +117,21 @@ export class ProductsComponent implements OnInit, OnDestroy {
       message: 'Please confirm to delete the selected products.',
       accept: () => {
         this.selectedProducts.forEach((product) => {
-          if(product.id) {
+          if (product.id) {
             this.productService.deleteProduct(product.id).subscribe();
           }
         });
-        this.messageService.add({severity: 'success',summary: 'Successful',detail: 'Products deleted'});
-        this.products = this.products.filter((val) => !this.selectedProducts.includes(val));
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Successful',
+          detail: 'Products deleted',
+        });
+        this.products = this.products.filter(
+          (val) => !this.selectedProducts.includes(val)
+        );
+        this.selectedProducts = [];
       },
-    }); 
+    });
   }
 
   editProduct(product: IProduct): void {
@@ -180,9 +189,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
 
           if (!productDTO.images.length) {
             // picture - 'no image available'
-            productDTO.images.push(
-              'https://api.escuelajs.co/api/v1/files/892c.svg'
-            );
+            productDTO.images.push('https://i.imgur.com/jVfoZnP.jpg');
           }
 
           if (this.product.id) {
@@ -213,6 +220,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
                 this.product = res;
                 console.log('ProductCreated:', res);
                 this.products.push(this.product);
+                this.productDialog = false;
               },
               error: (err) => {
                 console.log('ОШИБКА create:', err, productDTO);
@@ -230,15 +238,14 @@ export class ProductsComponent implements OnInit, OnDestroy {
   }
 
   openNew() {
-    this.product = initProduct;
+    this.product = Object.assign({}, initProduct);
     this.selectedCategory = undefined;
-    // this.submitted = false;
+    this.uploadedFiles = [];
     this.productDialog = true;
   }
 
   hideDialog() {
     this.productDialog = false;
-    this.product = initProduct;
     this.uploadedFiles = [];
   }
 
@@ -273,13 +280,16 @@ export class ProductsComponent implements OnInit, OnDestroy {
     this.product.images = this.product.images.filter((i) => i !== img);
   }
 
-  // private sanitizer: DomSanitizer = inject(DomSanitizer);
-  // sanitizeImageUrl(imageUrl: any) {
-  //   return imageUrl;
+  // WARNING: sanitizing unsafe URL value ..
+  // GET unsafe:[""] net::ERR_UNKNOWN_URL_SCHEME
 
-  //   let url = this.sanitizer.bypassSecurityTrustUrl(imageUrl);
-  //   // console.log('url:', url, imageUrl);
+  private sanitizer: DomSanitizer = inject(DomSanitizer);
+  sanitizeImageUrl(imageUrl: any) {
+    return imageUrl;
 
-  //   return url;
-  // }
+    let url = this.sanitizer.bypassSecurityTrustUrl(imageUrl);
+    // console.log('url:', url, imageUrl);
+
+    return url;
+  }
 }

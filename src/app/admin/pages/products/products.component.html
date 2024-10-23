@@ -44,7 +44,7 @@
                 </td>
                 <td>{{ product.title }}</td>
                 <td>{{ product.price | currency }}</td>
-                <td><img [src]="product.images[0]" alt="Product image" width="50"></td>
+                <td><img [src]="sanitizeImageUrl(product.images[0])" alt="Product image" width="50"></td>
                 <td>{{ product.category.name }}</td>
                 <td>
                     <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2 mb-1" (click)="editProduct(product)"></button>
@@ -64,7 +64,7 @@
                     <div class="absolute top-1 right-3">
                         <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning mb-1" (click)="deleteImage(img)"></button>
                     </div>
-                    <input type="image" [src]="img" class="product-image" autofocus>
+                    <input type="image" [src]="sanitizeImageUrl(img)" class="product-image" autofocus>
                 </div>
             </ng-template>
         </p-carousel>
@@ -126,7 +126,8 @@
         </div>
         <div class="">
             <label for="price">Price</label>
-            <p-inputNumber inputId="price" [(ngModel)]="product.price" name="price" mode="currency" currency="USD" locale="en-US"></p-inputNumber>
+            <p-inputNumber inputId="price" [(ngModel)]="product.price" name="price" [min]="1" required #price="ngModel" mode="currency" currency="USD" locale="en-US"></p-inputNumber>
+            <small *ngIf="price.invalid && (price.dirty || price.touched)" class="p-error">Price must be greater than 0.</small>
         </div>
     </ng-template>
 
