@@ -10,7 +10,11 @@ export class TokenService {
   private storage: LocalStorageService = inject(LocalStorageService);
   isAuthenticated: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
-  constructor() {}
+  constructor() {
+    if(this.getToken()) {
+      this.updateToken(true);
+    }
+  }
 
   getToken() {
     return this.storage.getItem(constants.TOKEN_KEY);
