@@ -1,6 +1,9 @@
 import { environment as env} from "../../../environments/environment";
 
 export const apiEndpoint = {
+  AUTH_LOCAL: {
+    LOGIN: env.apiUrl + '/auth/login'
+  },
   AUTH: {
     LOGIN: env.apiUrl + '/api/v1/auth/login',
     PROFILE: env.apiUrl + '/api/v1/auth/profile',
@@ -23,3 +26,7 @@ export const apiEndpoint = {
     DELETE: env.apiUrl + '/api/v1/categories',
   },
 };
+
+export const constants = {
+  TOKEN_KEY: "Platzi"
+}

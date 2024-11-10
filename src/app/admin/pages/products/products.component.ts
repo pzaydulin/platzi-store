@@ -52,7 +52,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject();
   ngOnDestroy(): void {
     this.destroy$.next(true);
-    this.destroy$.complete();
+    this.destroy$.unsubscribe();
   }
 
   private productService: ProductService = inject(ProductService);
