@@ -3,7 +3,7 @@ import { ProductService } from '../../core/services/product.service';
 import { TableModule } from 'primeng/table';
 import { CommonModule } from '@angular/common';
 import { initProduct, IProduct } from '../../core/models/product.models';
-import { catchError, delay, forkJoin, map, of, Subject, takeUntil, tap } from 'rxjs';
+import { catchError, forkJoin, map, of, Subject, takeUntil, tap } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmationService, MessageService, PrimeNGConfig } from 'primeng/api';
 import { RippleModule } from 'primeng/ripple';
@@ -17,10 +17,9 @@ import { DropdownModule } from 'primeng/dropdown';
 import { CategoryService } from '../../core/services/category.service';
 import { ICategory } from '../../core/models/category.models';
 import { CarouselModule } from 'primeng/carousel';
-import { FileRemoveEvent, FileSelectEvent, FileUploadEvent, FileUploadModule } from 'primeng/fileupload';
+import { FileRemoveEvent, FileSelectEvent, FileUploadModule } from 'primeng/fileupload';
 import { PanelModule } from 'primeng/panel';
-import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
-import { toObservable } from '@angular/core/rxjs-interop';
+import { DomSanitizer } from '@angular/platform-browser';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
 @Component({
@@ -98,7 +97,9 @@ export class ProductsComponent implements OnInit, OnDestroy {
       header: 'Are you sure?',
       message: 'Please confirm to delete the product.',
       accept: () => {
-        this.productService.deleteProduct(id).subscribe(() => {
+        this.productService.deleteProduct(id)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe(() => {
           this.messageService.add({
             severity: 'success',
             summary: 'Successful',
@@ -118,7 +119,9 @@ export class ProductsComponent implements OnInit, OnDestroy {
       accept: () => {
         this.selectedProducts.forEach((product) => {
           if (product.id) {
-            this.productService.deleteProduct(product.id).subscribe();
+            this.productService.deleteProduct(product.id)
+              .pipe(takeUntil(this.destroy$))
+              .subscribe();
           }
         });
         this.messageService.add({
@@ -179,7 +182,9 @@ export class ProductsComponent implements OnInit, OnDestroy {
     }
 
     // Используем forkJoin для ожидания завершения всех загрузок
-    forkJoin(uploadObservables).subscribe({
+    forkJoin(uploadObservables)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
       next: (results) => {
         // Фильтруем результаты, чтобы убрать null (ошибки)
         const successfulUploads = results.filter((result) => result !== null);
@@ -196,6 +201,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
             // Update product
             this.productService
               .updateProduct(this.product.id, productDTO)
+              .pipe(takeUntil(this.destroy$))
               .subscribe({
                 next: (res) => {
                   this.product = res;
@@ -215,17 +221,20 @@ export class ProductsComponent implements OnInit, OnDestroy {
             this.productDialog = false;
           } else {
             // Create product
-            this.productService.createProduct(productDTO).subscribe({
-              next: (res) => {
-                this.product = res;
-                console.log('ProductCreated:', res);
-                this.products.push(this.product);
-                this.productDialog = false;
-              },
-              error: (err) => {
-                console.log('ОШИБКА create:', err, productDTO);
-              },
-            });
+            this.productService
+              .createProduct(productDTO)
+              .pipe(takeUntil(this.destroy$))
+              .subscribe({
+                next: (res) => {
+                  this.product = res;
+                  console.log('ProductCreated:', res);
+                  this.products.push(this.product);
+                  this.productDialog = false;
+                },
+                error: (err) => {
+                  console.log('ОШИБКА create:', err, productDTO);
+                },
+              });
           }
         } else {
           console.log('Не все файлы были успешно загружены');
@@ -285,8 +294,6 @@ export class ProductsComponent implements OnInit, OnDestroy {
 
   private sanitizer: DomSanitizer = inject(DomSanitizer);
   sanitizeImageUrl(imageUrl: any) {
-    return imageUrl;
-
     let url = this.sanitizer.bypassSecurityTrustUrl(imageUrl);
     // console.log('url:', url, imageUrl);
 
