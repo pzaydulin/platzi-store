@@ -1,27 +1,22 @@
 import { CanActivateFn, Router } from '@angular/router';
 import { TokenService } from '../services/token.service';
 import { inject } from '@angular/core';
-import { Subject } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 export const authGuard: CanActivateFn = (route, state) => {
+  const tokenService: TokenService = inject(TokenService);
+  const router: Router = inject(Router);
 
-  const destroy$ = new Subject();
-
-  inject(TokenService).isAuthenticated.subscribe({
+  tokenService.isAuthenticated.pipe(takeUntilDestroyed()).subscribe({
     next: (value) => {
       if (!value) {
-        inject(Router).navigate(['']);
+        router.navigate(['']);
       }
     },
     error: (err) => {
-        inject(Router).navigate(['']);
+      router.navigate(['']);
     },
-    complete: () => {
-      destroy$.next(true);
-      destroy$.unsubscribe();
-    }
   });
 
   return true;
-
 };

@@ -3,6 +3,7 @@ import { Component, inject } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { TokenService } from '../../../core/services/token.service';
 import { Router } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-header',
@@ -18,7 +19,7 @@ export class HeaderComponent {
   private router: Router = inject(Router);
 
   constructor() {
-    this.isLoggedIn$ = this.tokenService.isAuthenticated;
+    this.isLoggedIn$ = this.tokenService.isAuthenticated.pipe(takeUntilDestroyed());
   }
 
   toggleMenu() {
