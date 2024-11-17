@@ -20,7 +20,7 @@ export class AuthService {
       .pipe(
         map((response) => {
           if (response) {
-            this.tokenService.setToken(response.access_token);
+            this.tokenService.setToken(response.accessToken);
           }
           return response;
         })

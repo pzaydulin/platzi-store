@@ -5,11 +5,18 @@ import { ProductsComponent } from "./pages/products/products.component";
 import { MasterComponent } from "./shared/layout/master/master.component";
 import { guestGuard } from "./core/guards/guest.guard";
 import { authGuard } from "./core/guards/auth.guard";
+import { provideState } from "@ngrx/store";
+import { AUTH_FEATURENAME, authReducer } from "./core/store/auth.reducer";
+import { DEFAULT_ROUTER_FEATURENAME, routerReducer } from "@ngrx/router-store";
 
 export const routes: Routes = [
   {
     path: '',
     component: DefaultComponent,
+    providers: [
+      provideState({ name: AUTH_FEATURENAME, reducer: authReducer }),
+      provideState({ name: DEFAULT_ROUTER_FEATURENAME, reducer: routerReducer }),
+    ],
     children: [
       {
         path: '',
