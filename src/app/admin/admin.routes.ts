@@ -8,6 +8,8 @@ import { authGuard } from "./core/guards/auth.guard";
 import { provideState } from "@ngrx/store";
 import { AUTH_FEATURENAME, authReducer } from "./core/store/auth.reducer";
 import { DEFAULT_ROUTER_FEATURENAME, routerReducer } from "@ngrx/router-store";
+import { provideEffects } from "@ngrx/effects";
+import { AuthEffects } from "./core/store/auth.effects";
 
 export const routes: Routes = [
   {
@@ -16,6 +18,7 @@ export const routes: Routes = [
     providers: [
       provideState({ name: AUTH_FEATURENAME, reducer: authReducer }),
       provideState({ name: DEFAULT_ROUTER_FEATURENAME, reducer: routerReducer }),
+      provideEffects([AuthEffects]),
     ],
     children: [
       {

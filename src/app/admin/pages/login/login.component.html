@@ -4,7 +4,7 @@
       <div class="min-h-screen flex flex-col items-center justify-center py-6 px-4">
         <div class="grid md:grid-cols-2 items-center gap-4 max-w-6xl w-full">
           <div class="p-6">
-            <app-login-form-ui (credentals)="onLogin($event)"></app-login-form-ui>
+            <app-login-form-ui (credentals)="onLogin($event)" [disabled]="loading$ | async"></app-login-form-ui>
           </div>
           <div class="lg:h-[400px] md:h-[300px] max-md:mt-8">
             <img src="/assets/img/draw2.webp" class="w-full h-full max-md:w-4/5 mx-auto block object-cover" />

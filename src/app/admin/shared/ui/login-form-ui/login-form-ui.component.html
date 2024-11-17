@@ -66,7 +66,7 @@
       pButton
       type="submit"
       label="Log in"
-      [disabled]="loginForm.invalid"
+      [disabled]="disabled || loginForm.invalid"
       class="w-full py-3 px-4 text-base tracking-wide"
     ></button>
   </div>

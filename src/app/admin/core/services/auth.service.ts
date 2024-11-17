@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { ILogin, ILoginResponse } from '../models/auth.model';
 import { apiEndpoint } from '../constants';
-import { map } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { TokenService } from './token.service';
 
 @Injectable({
@@ -14,7 +14,7 @@ export class AuthService {
 
   constructor() {}
 
-  login(credentials: ILogin) {
+  login(credentials: ILogin): Observable<ILoginResponse> {
     return this.http
       .post<ILoginResponse>(apiEndpoint.AUTH_LOCAL.LOGIN, credentials)
       .pipe(
@@ -27,6 +27,5 @@ export class AuthService {
       );
   }
 
-  logout() {
-  }
+  logout() {}
 }

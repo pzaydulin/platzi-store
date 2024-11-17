@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnDestroy, OnInit } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -16,11 +16,17 @@ import { ToastModule } from 'primeng/toast';
 import { HttpErrorResponse } from '@angular/common/http';
 import { LoginFormUiComponent } from '../../shared/ui/login-form-ui/login-form-ui.component';
 import { ILogin } from '../../core/models/auth.model';
+import { Store } from '@ngrx/store';
+import * as auth from '../../core/store/auth.selectors';
+import { CommonModule } from '@angular/common';
+import { AuthActions } from '../../core/store/auth.actions';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-login',
   standalone: true,
   imports: [
+    CommonModule,
     LoginFormUiComponent,
     ReactiveFormsModule,
     InputTextModule,
@@ -32,43 +38,32 @@ import { ILogin } from '../../core/models/auth.model';
   styleUrl: './login.component.scss',
   providers: [MessageService],
 })
-export class LoginComponent implements OnDestroy {
-  private authService: AuthService = inject(AuthService);
-  private router: Router = inject(Router);
-  private messageService = inject(MessageService);
+export class LoginComponent implements OnInit {
+  private store$ = inject(Store);
+  protected loading$ = this.store$.select(auth.getLoading);
+  protected serverError$ = this.store$.select(auth.getServerError);
 
-  protected destroy$ = new Subject();
+  private messageService = inject(MessageService);
+  private destroy$ = new Subject();
+  private destroyRef = inject(DestroyRef);
+
   protected loginForm!: FormGroup;
 
-  constructor() {}
-
-  ngOnDestroy(): void {
-    this.destroy$.next(true);
-    this.destroy$.unsubscribe();
+  ngOnInit(): void {
+    this.serverError$.pipe(takeUntil(this.destroy$))
+      .subscribe((err) => {
+        if (err) {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: `User Not Found (${err})`,
+          });
+        }
+      },
+    );
   }
 
   onLogin(credentals: ILogin) {
-    if (credentals) {
-      this.authService
-        .login(credentals)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: (res) => {
-            if (res) {
-              // redirected in guard
-              // this.router.navigate(['products']);
-            }
-          },
-          error: (err: HttpErrorResponse) => {
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Error',
-              detail: `User Not Found (${err.statusText})`,
-            });
-          },
-        });
-    } else {
-      this.loginForm.markAllAsTouched();
-    }
+    this.store$.dispatch(AuthActions.login(credentals));
   }
 }

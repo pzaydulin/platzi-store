@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -12,7 +12,7 @@ import { PasswordModule } from 'primeng/password';
   styleUrl: './login-form-ui.component.scss',
 })
 export class LoginFormUiComponent implements OnInit {
-
+  @Input() disabled: boolean | null = false;
   @Output() credentals = new EventEmitter()
 
   protected loginForm!: FormGroup;
