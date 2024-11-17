@@ -12,9 +12,9 @@ export class AuthEffects {
   login$ = createEffect(() =>
     this.actions$.pipe(
       ofType(AuthActions.login),
-      exhaustMap(credential =>
+      exhaustMap((credential) =>
         this.authService.login(credential).pipe(
-          map((accessToken) => AuthActions.loginSuccess(accessToken)),
+          map((accessToken) => AuthActions.loginSuccess({payload: accessToken} )),
           catchError((err) =>
             of(AuthActions.loginFailure({ serverError: err.statusText }))
           )
