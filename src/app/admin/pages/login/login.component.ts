@@ -1,51 +1,69 @@
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup,  ReactiveFormsModule,  Validators } from '@angular/forms';
+import { Component, DestroyRef, inject, OnDestroy, OnInit } from '@angular/core';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
 import { Subject, takeUntil } from 'rxjs';
 import { Router } from '@angular/router';
+import { InputTextModule } from 'primeng/inputtext';
+import { ButtonModule } from 'primeng/button';
+import { PasswordModule } from 'primeng/password';
+import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
+import { HttpErrorResponse } from '@angular/common/http';
+import { LoginFormUiComponent } from '../../shared/ui/login-form-ui/login-form-ui.component';
+import { ILogin } from '../../core/models/auth.model';
+import { Store } from '@ngrx/store';
+import * as auth from '../../core/store/auth.selectors';
+import { CommonModule } from '@angular/common';
+import { AuthActions } from '../../core/store/auth.actions';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [
+    CommonModule,
+    LoginFormUiComponent,
+    ReactiveFormsModule,
+    InputTextModule,
+    ButtonModule,
+    PasswordModule,
+    ToastModule,
+  ],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.scss'
+  styleUrl: './login.component.scss',
+  providers: [MessageService],
 })
-export class LoginComponent implements OnInit, OnDestroy {
+export class LoginComponent implements OnInit {
+  private store$ = inject(Store);
+  protected loading$ = this.store$.select(auth.getLoading);
+  protected serverError$ = this.store$.select(auth.getServerError);
 
-  private authService: AuthService = inject(AuthService);
-  private router: Router = inject(Router);
+  private messageService = inject(MessageService);
+  private destroy$ = new Subject();
+  private destroyRef = inject(DestroyRef);
 
-  protected destroy$ = new Subject();
   protected loginForm!: FormGroup;
 
-  constructor(private fb:FormBuilder) {}
-
   ngOnInit(): void {
-    this.loginForm = this.fb.group({
-      username: ['', [Validators.required]],
-      password: ['', [Validators.required, Validators.minLength(8)]]
-    });
+    this.serverError$.pipe(takeUntil(this.destroy$))
+      .subscribe((err) => {
+        if (err) {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: `User Not Found (${err})`,
+          });
+        }
+      },
+    );
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next(true);
-    this.destroy$.unsubscribe();
-  }
-
-  onLogin() {
-    if (this.loginForm.valid) {
-      this.authService.login(this.loginForm.value)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: (res) => {
-            if(res) {
-              this.router.navigate(['products']);
-            }
-          }
-        });
-    } else {
-      this.loginForm.markAllAsTouched();
-    }
+  onLogin(credentals: ILogin) {
+    this.store$.dispatch(AuthActions.login(credentals));
   }
 }

@@ -1,0 +1,82 @@
+<form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="space-y-4">
+  <div class="mb-8">
+    <h3 class="text-gray-800 text-3xl font-extrabold">Sign in</h3>
+    <p class="text-gray-500 text-sm mt-4 leading-relaxed">
+      Sign in to your account.
+    </p>
+  </div>
+
+  <div>
+    <label class="text-gray-800 text-sm mb-2 block">User name</label>
+    <div class="relative flex items-center">
+      <div class="p-input-icon-right w-full">
+        <i class="pi pi-user text-[#bbb]"></i>
+        <input
+          type="text"
+          class="w-full !px-3.5 !py-2.5"
+          pInputText
+          name="username"
+          formControlName="username"
+          required
+          placeholder="Enter user name"
+        />
+      </div>
+    </div>
+  </div>
+  <div>
+    <label class="text-gray-800 text-sm mb-2 block">Password</label>
+    <div class="relative flex items-center">
+      <p-password
+        name="password"
+        formControlName="password"
+        class="w-full"
+        [toggleMask]="true"
+        [style]="{ width: '100%', color: 'red' }"
+        [inputStyle]="{ width: '100%', padding: '10px 14px' }"
+        placeholder="Enter password"
+      ></p-password>
+    </div>
+  </div>
+
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <div class="flex items-center">
+      <input
+        id="remember-me"
+        name="remember-me"
+        type="checkbox"
+        class="h-4 w-4 shrink-0 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+      />
+      <label for="remember-me" class="ml-3 block text-sm text-gray-800">
+        Remember me
+      </label>
+    </div>
+
+    <div class="text-sm">
+      <a
+        href="jajvascript:void(0);"
+        class="text-blue-600 hover:underline font-semibold"
+      >
+        Forgot your password?
+      </a>
+    </div>
+  </div>
+
+  <div class="!mt-8">
+    <button
+      pButton
+      type="submit"
+      label="Log in"
+      [disabled]="disabled || loginForm.invalid"
+      class="w-full py-3 px-4 text-base tracking-wide"
+    ></button>
+  </div>
+
+  <p class="text-sm !mt-8 text-center text-gray-800">
+    Don't have an account
+    <a
+      href="javascript:void(0);"
+      class="text-blue-600 !py-3 font-semibold hover:underline ml-1 whitespace-nowrap"
+      >Register here</a
+    >
+  </p>
+</form>

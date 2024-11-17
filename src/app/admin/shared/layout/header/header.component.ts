@@ -36,6 +36,7 @@ export class HeaderComponent {
 
   logOut() {
     this.tokenService.removeToken();
-    this.router.navigate(['']);
+    // redirected in guard
+    // this.router.navigate(['']);
   }
 }
