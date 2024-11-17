@@ -1,25 +1,34 @@
-import { createReducer, on } from "@ngrx/store";
-import { AuthActions } from "./auth.actions";
-import { ILoginResponse } from "../models/auth.model";
+import { createReducer, on } from '@ngrx/store';
+import { AuthActions } from './auth.actions';
+import { ILoginResponse } from '../models/auth.model';
 
+export const AUTH_FEATURENAME = 'auth';
 
-export const AUTH_FEATURENAME = "auth"
+export interface AuthData {
+  accessToken: string;
+  /**
+   *  user ID from of sever DB
+   */
+  id?: number;
+  iat?: number;
+  /**
+   *  timestamp of expiring
+   */
+  exp?: number;
+}
 
-// export interface AuthData { // ILoginResponse
-//     accessToken: string;
-// }
 export interface AuthState {
   loading: boolean;
   loaded: boolean;
   serverError: string;
-  authData?: ILoginResponse;
+  authData?: AuthData;
 }
 
 export const initialState: AuthState = {
-    loading: false,
-    loaded: true,
-    serverError: ''
-}
+  loading: false,
+  loaded: true,
+  serverError: '',
+};
 
 export const authReducer = createReducer(
   initialState,
@@ -28,12 +37,12 @@ export const authReducer = createReducer(
     loading: true,
     serverError: '',
   })),
-  on(AuthActions.loginSuccess, (state, authData: ILoginResponse) => ({
+  on(AuthActions.loginSuccess, (state, action) => ({
     ...state,
     loaded: true,
     loading: false,
     serverError: '',
-    authData,
+    authData: action.payload,
   })),
   on(AuthActions.loginFailure, (state, { serverError }) => ({
     ...state,

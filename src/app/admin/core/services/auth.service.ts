@@ -4,6 +4,7 @@ import { ILogin, ILoginResponse } from '../models/auth.model';
 import { apiEndpoint } from '../constants';
 import { map, Observable } from 'rxjs';
 import { TokenService } from './token.service';
+import { jwtDecode } from 'jwt-decode';
 
 @Injectable({
   providedIn: 'root',
@@ -22,7 +23,10 @@ export class AuthService {
           if (response) {
             this.tokenService.setToken(response.accessToken);
           }
-          return response;
+          return {
+            ...response,
+            ...jwtDecode(response.accessToken),
+          };
         })
       );
   }
