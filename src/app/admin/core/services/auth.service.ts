@@ -5,6 +5,7 @@ import { apiEndpoint } from '../constants';
 import { map, Observable } from 'rxjs';
 import { TokenService } from './token.service';
 import { jwtDecode } from 'jwt-decode';
+import { AuthData } from '../store/auth.reducer';
 
 @Injectable({
   providedIn: 'root',
@@ -31,8 +32,23 @@ export class AuthService {
       );
   }
 
+  refresh(): Observable<AuthData> {
+    return this.http
+      .post<AuthData>(apiEndpoint.AUTH_LOCAL.REFRESH_TOKEN, {})
+      .pipe(
+        map((response) => {
+          if (response) {
+            this.tokenService.setToken(response.accessToken);
+          }
+          return {
+            ...response,
+            ...jwtDecode(response.accessToken),
+          };
+        })
+      );
+  }
   profile(): Observable<any> {
-    return this.http.get<any>(apiEndpoint.AUTH_LOCAL.PROFILE)
+    return this.http.get<any>(apiEndpoint.AUTH_LOCAL.PROFILE);
   }
 
   logout() {}
