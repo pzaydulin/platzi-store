@@ -13,7 +13,8 @@ export const guestGuard: CanActivateFn = (route, state) => {
   tokenService.isAuthenticated.pipe(takeUntil(destroy$)).subscribe({
     next: (value) => {
       if (value) {
-        router.navigate(['products']);
+        console.log('User is authenticated...');
+        router.navigate(['products']);        
       }
     },
     error: (err) => {

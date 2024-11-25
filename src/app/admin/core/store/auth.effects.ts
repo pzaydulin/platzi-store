@@ -3,6 +3,7 @@ import { AuthService } from '../services/auth.service';
 import { ofType, createEffect, Actions } from '@ngrx/effects';
 import { catchError, exhaustMap, map, of } from 'rxjs';
 import { AuthActions } from './auth.actions';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Injectable()
 export class AuthEffects {
@@ -15,8 +16,9 @@ export class AuthEffects {
       exhaustMap((credential) =>
         this.authService.login(credential).pipe(
           map((accessToken) => AuthActions.loginSuccess({payload: accessToken} )),
-          catchError((err) =>
-            of(AuthActions.loginFailure({ serverError: err.statusText }))
+          catchError((err:HttpErrorResponse) => {
+              return of(AuthActions.loginFailure({ serverError: err.statusText }))
+            }
           )
         )
       )

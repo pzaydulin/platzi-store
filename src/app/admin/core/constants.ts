@@ -2,7 +2,8 @@ import { environment as env} from "../../../environments/environment";
 
 export const apiEndpoint = {
   AUTH_LOCAL: {
-    LOGIN: env.apiUrl + '/auth/login'
+    LOGIN: env.apiUrl + '/auth/login',
+    PROFILE: env.apiUrl + '/auth/profile'
   },
   AUTH: {
     LOGIN: env.apiUrl + '/api/v1/auth/login',

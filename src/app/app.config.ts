@@ -3,10 +3,11 @@ import { provideRouter } from '@angular/router';
 import { provideAnimations } from '@angular/platform-browser/animations';
 
 import { routes } from './app.routes';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideStore } from '@ngrx/store';
 import { provideStoreDevtools } from '@ngrx/store-devtools';
 import { provideRouterStore } from '@ngrx/router-store';
+import { httpInterceptor } from './admin/core/interceptors/http.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -14,7 +15,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideRouterStore(),
     provideAnimations(),
-    provideHttpClient(),
+    provideHttpClient(withInterceptors([httpInterceptor])),
     provideStore(),
     provideStoreDevtools({
       maxAge: 25, // Retains last 25 states

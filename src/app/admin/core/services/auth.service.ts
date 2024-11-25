@@ -31,5 +31,9 @@ export class AuthService {
       );
   }
 
+  profile(): Observable<any> {
+    return this.http.get<any>(apiEndpoint.AUTH_LOCAL.PROFILE)
+  }
+
   logout() {}
 }

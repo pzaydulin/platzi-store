@@ -1,6 +1,5 @@
 import { createReducer, on } from '@ngrx/store';
 import { AuthActions } from './auth.actions';
-import { ILoginResponse } from '../models/auth.model';
 
 export const AUTH_FEATURENAME = 'auth';
 
