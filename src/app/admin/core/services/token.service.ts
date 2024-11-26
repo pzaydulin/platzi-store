@@ -18,21 +18,17 @@ export class TokenService {
     this.storeNgRx$.select(getAccessToken).subscribe((token) => {
       this.accessToken = token;
       console.log('token changed: ', token);
-
-      if (this.accessToken) {
-        this.updateToken(true);
-      }
-
+      this.updateToken(!!token);
     });
   }
 
   getToken() {
     const authData = this.storage.getItem(constants.TOKEN_KEY);
-    if(authData) {
+    if (authData) {
       let obj = JSON.parse(authData);
       return obj.accessToken ?? '';
     }
-    return "";
+    return '';
   }
 
   setToken(authDataString: string) {

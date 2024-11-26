@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { AuthService } from '../services/auth.service';
 import { ofType, createEffect, Actions, ROOT_EFFECTS_INIT } from '@ngrx/effects';
-import { catchError, concatMap, delay, exhaustMap, filter, first, fromEvent, map, of, switchMap, tap } from 'rxjs';
+import { catchError, concatMap, delay,  exhaustMap, filter, first, fromEvent, map, of, switchMap, tap } from 'rxjs';
 import { AuthActions } from './auth.actions';
 import { HttpErrorResponse } from '@angular/common/http';
 import { select, Store } from '@ngrx/store';
@@ -95,10 +95,29 @@ export class AuthEffects {
     )
   );
 
-  listenStorage$ = createEffect(() => this.actions$.pipe(
-    ofType(AuthActions.initAuthData),
-    switchMap(() => fromEvent(window, "storage")),
-    map(() => AuthActions.getDataFromStorage())
-  ))
+  listenStorage$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AuthActions.initAuthData),
+      switchMap(() => fromEvent(window, 'storage')),
+      map(() => AuthActions.getDataFromStorage())
+    )
+  );
 
+  // listenAuthotication$ = createEffect(
+  //   () =>
+  //     this.actions$.pipe(
+  //       ofType(AuthActions.initAuthData),
+  //       switchMap(() => this.store$.pipe(select(getAuthData))),
+  //       tap((authData) => console.log('authData=>', authData)),
+  //       filter((authData) => authData !== undefined),
+  //       map((authData) => !!authData),
+  //       distinctUntilChanged(), // compare prev and current value
+  //       skip(1), // skip works of guards
+  //       tap((isAuth) => {
+  //         console.log('isAuth', isAuth);
+  //         this.router$.navigate([isAuth ? 'products' : '']);
+  //       })
+  //     ),
+  //   { dispatch: false }
+  // );
 }
