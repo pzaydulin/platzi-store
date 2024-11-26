@@ -27,6 +27,7 @@ export const initialState: AuthState = {
   loading: false,
   loaded: true,
   serverError: '',
+  authData: undefined
 };
 
 export const authReducer = createReducer(
@@ -49,5 +50,8 @@ export const authReducer = createReducer(
     loading: false,
     serverError,
     authData: undefined,
+  })),
+  on(AuthActions.logoutSuccess, (state) => ({
+    ...initialState
   }))
 );

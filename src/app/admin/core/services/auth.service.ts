@@ -21,9 +21,6 @@ export class AuthService {
       .post<ILoginResponse>(apiEndpoint.AUTH_LOCAL.LOGIN, credentials)
       .pipe(
         map((response) => {
-          if (response) {
-            this.tokenService.setToken(response.accessToken);
-          }
           return {
             ...response,
             ...jwtDecode(response.accessToken),
@@ -37,9 +34,6 @@ export class AuthService {
       .post<AuthData>(apiEndpoint.AUTH_LOCAL.REFRESH_TOKEN, {})
       .pipe(
         map((response) => {
-          if (response) {
-            this.tokenService.setToken(response.accessToken);
-          }
           return {
             ...response,
             ...jwtDecode(response.accessToken),

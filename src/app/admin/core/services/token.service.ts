@@ -3,7 +3,7 @@ import { BehaviorSubject } from 'rxjs';
 import { LocalStorageService } from './local-storage.service';
 import { constants } from '../constants';
 import { Store } from '@ngrx/store';
-import { getAccessToken } from '../store/auth.selectors';
+import { getAccessToken, getAuthData } from '../store/auth.selectors';
 
 @Injectable({
   providedIn: 'root',
@@ -12,27 +12,31 @@ export class TokenService {
   private storage: LocalStorageService = inject(LocalStorageService);
   private storeNgRx$ = inject(Store);
   isAuthenticated: BehaviorSubject<boolean> = new BehaviorSubject(false);
-  accessToken?: string
+  accessToken?: string;
 
   constructor() {
-    this.storeNgRx$.select(getAccessToken)
-      .subscribe(token => {
-        this.accessToken = token
-        console.log("token changed: ", token);
-        
-      });
+    this.storeNgRx$.select(getAccessToken).subscribe((token) => {
+      this.accessToken = token;
+      console.log('token changed: ', token);
 
-    if(this.accessToken) {
-      this.updateToken(true);
-    }
+      if (this.accessToken) {
+        this.updateToken(true);
+      }
+
+    });
   }
 
   getToken() {
-    return this.storage.getItem(constants.TOKEN_KEY);
+    const authData = this.storage.getItem(constants.TOKEN_KEY);
+    if(authData) {
+      let obj = JSON.parse(authData);
+      return obj.accessToken ?? '';
+    }
+    return "";
   }
 
-  setToken(token: string) {
-    this.storage.setItem(constants.TOKEN_KEY, token);
+  setToken(authDataString: string) {
+    this.storage.setItem(constants.TOKEN_KEY, authDataString);
     this.updateToken(true);
   }
 
