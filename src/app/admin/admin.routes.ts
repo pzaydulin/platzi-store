@@ -24,7 +24,7 @@ export const routes: Routes = [
       {
         path: '',
         canActivate: [guestGuard],
-        component: LoginComponent,
+        loadComponent: () => import('./pages/login/login.component').then(m => m.LoginComponent)
       },
     ],
   },
@@ -35,7 +35,7 @@ export const routes: Routes = [
       {
         path: 'products',
         canActivate: [authGuard],
-        component: ProductsComponent,
+        loadComponent: () => import('./pages/products/products.component').then(m => m.ProductsComponent)
       },
     ],
   },

@@ -1,18 +1,19 @@
 import { DestroyRef, inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { TokenService } from '../services/token.service';
-import { Subject, Subscription, takeUntil } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
+import { AuthService } from '../services/auth.service';
 
 export const guestGuard: CanActivateFn = (route, state) => {
 
-  const tokenService: TokenService = inject(TokenService);
+  const authService: AuthService = inject(AuthService);
   const router: Router = inject(Router);
   const destroy$ = new Subject();
   const destroyRef = inject(DestroyRef);
 
-  tokenService.isAuthenticated.pipe(takeUntil(destroy$)).subscribe({
+  authService.isAuthenticated.pipe(takeUntil(destroy$)).subscribe({
     next: (value) => {
       if (value) {
+        console.log('User is authenticated...');
         router.navigate(['products']);
       }
     },

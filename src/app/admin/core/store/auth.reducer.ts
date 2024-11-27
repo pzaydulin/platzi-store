@@ -1,6 +1,5 @@
 import { createReducer, on } from '@ngrx/store';
 import { AuthActions } from './auth.actions';
-import { ILoginResponse } from '../models/auth.model';
 
 export const AUTH_FEATURENAME = 'auth';
 
@@ -28,6 +27,7 @@ export const initialState: AuthState = {
   loading: false,
   loaded: true,
   serverError: '',
+  authData: undefined
 };
 
 export const authReducer = createReducer(
@@ -50,5 +50,8 @@ export const authReducer = createReducer(
     loading: false,
     serverError,
     authData: undefined,
+  })),
+  on(AuthActions.logoutSuccess, (state) => ({
+    ...initialState
   }))
 );

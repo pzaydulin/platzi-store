@@ -28,10 +28,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   imports: [
     CommonModule,
     LoginFormUiComponent,
-    ReactiveFormsModule,
-    InputTextModule,
-    ButtonModule,
-    PasswordModule,
     ToastModule,
   ],
   templateUrl: './login.component.html',
@@ -50,20 +46,29 @@ export class LoginComponent implements OnInit {
   protected loginForm!: FormGroup;
 
   ngOnInit(): void {
-    this.serverError$.pipe(takeUntil(this.destroy$))
-      .subscribe((err) => {
-        if (err) {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: `User Not Found (${err})`,
-          });
-        }
-      },
-    );
+    this.serverError$.pipe(takeUntil(this.destroy$)).subscribe((err) => {
+      if (err) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: `User Not Found (${err})`,
+        });
+      }
+    });
   }
 
   onLogin(credentals: ILogin) {
     this.store$.dispatch(AuthActions.login(credentals));
+  }
+
+  private authService = inject(AuthService)
+  getProfile() {
+    this.authService.profile()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((profile) => {
+        if (profile) {
+          console.log('Profile:', profile);
+        }
+      });
   }
 }

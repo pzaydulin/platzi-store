@@ -1,9 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
-import { TokenService } from '../../../core/services/token.service';
-import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-header',
@@ -15,11 +14,12 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 export class HeaderComponent {
   protected isLoggedIn$;
 
-  private tokenService: TokenService = inject(TokenService);
-  private router: Router = inject(Router);
+  private authService: AuthService = inject(AuthService);
 
   constructor() {
-    this.isLoggedIn$ = this.tokenService.isAuthenticated.pipe(takeUntilDestroyed());
+    this.isLoggedIn$ = this.authService.isAuthenticated.pipe(
+      takeUntilDestroyed()
+    );
   }
 
   toggleMenu() {
@@ -35,8 +35,6 @@ export class HeaderComponent {
   }
 
   logOut() {
-    this.tokenService.removeToken();
-    // redirected in guard
-    // this.router.navigate(['']);
+    this.authService.logout();
   }
 }
