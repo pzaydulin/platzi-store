@@ -30,5 +30,5 @@ export const apiEndpoint = {
 };
 
 export const constants = {
-  TOKEN_KEY: "Platzi"
+  AUTH_DATA_KEY: "Platzi"
 }

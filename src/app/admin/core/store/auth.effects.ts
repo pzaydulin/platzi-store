@@ -68,7 +68,7 @@ export class AuthEffects {
         ofType(AuthActions.loginSuccess),
         tap((action) => {
           this.storage$.setItem(
-            constants.TOKEN_KEY,
+            constants.AUTH_DATA_KEY,
             JSON.stringify(action.payload)
           );
         })
@@ -80,7 +80,7 @@ export class AuthEffects {
     this.actions$.pipe(
       ofType(AuthActions.initAuthData, AuthActions.getDataFromStorage),
       map(() => {
-        const authDataString = this.storage$.getItem(constants.TOKEN_KEY);
+        const authDataString = this.storage$.getItem(constants.AUTH_DATA_KEY);
         if (!authDataString) {
           return AuthActions.logoutSuccess();
         }
@@ -103,6 +103,19 @@ export class AuthEffects {
     )
   );
 
+
+  logout$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AuthActions.logout),
+      map(() => {
+        this.storage$.removeItem(constants.AUTH_DATA_KEY);
+        console.log("logout");
+        
+        return AuthActions.logoutSuccess();
+      })
+    )
+  )
+  
   // listenAuthotication$ = createEffect(
   //   () =>
   //     this.actions$.pipe(

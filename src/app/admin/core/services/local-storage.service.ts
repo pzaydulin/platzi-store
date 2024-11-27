@@ -1,28 +1,30 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class LocalStorageService {
+  private authService: AuthService = inject(AuthService)
+
   constructor() {}
 
-  // Set a value in local storage
   setItem(key: string, value: string): void {
     localStorage.setItem(key, value);
+    this.authService.isAuthUpdate(true);
   }
 
-  // Get a value from local storage
   getItem(key: string): string | null {
     return localStorage.getItem(key);
   }
 
-  // Remove a value from local storage
   removeItem(key: string): void {
     localStorage.removeItem(key);
+    this.authService.isAuthUpdate(false);
   }
 
-  // Clear all items from local storage
   clear(): void {
     localStorage.clear();
+    this.authService.isAuthUpdate(false);
   }
 }

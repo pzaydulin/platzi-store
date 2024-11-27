@@ -9,6 +9,7 @@ export const AuthActions = createActionGroup({
     'Login Success': props<{ payload: AuthData }>(),
     'Login Failure': props<{ serverError: string }>(),
     'Init Auth Data': emptyProps(),
+    'Logout': emptyProps(),
     'Logout Success': emptyProps(),
     "Get Data From Storage": emptyProps()
   },
