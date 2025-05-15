@@ -5,7 +5,11 @@ import { CommonModule } from '@angular/common';
 import { initProduct, IProduct } from '../../core/models/product.models';
 import { catchError, forkJoin, map, of, Subject, takeUntil, tap } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
-import { ConfirmationService, MessageService, PrimeNGConfig } from 'primeng/api';
+import {
+  ConfirmationService,
+  MessageService,
+  PrimeNGConfig,
+} from 'primeng/api';
 import { RippleModule } from 'primeng/ripple';
 import { PaginatorModule } from 'primeng/paginator';
 import { DialogModule } from 'primeng/dialog';
@@ -17,7 +21,11 @@ import { DropdownModule } from 'primeng/dropdown';
 import { CategoryService } from '../../core/services/category.service';
 import { ICategory } from '../../core/models/category.models';
 import { CarouselModule } from 'primeng/carousel';
-import { FileRemoveEvent, FileSelectEvent, FileUploadModule } from 'primeng/fileupload';
+import {
+  FileRemoveEvent,
+  FileSelectEvent,
+  FileUploadModule,
+} from 'primeng/fileupload';
 import { PanelModule } from 'primeng/panel';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -92,22 +100,24 @@ export class ProductsComponent implements OnInit, OnDestroy {
   }
 
   deleteProduct(id: number): void {
-    
     this.confirmationService.confirm({
       header: 'Are you sure?',
       message: 'Please confirm to delete the product.',
       accept: () => {
-        this.productService.deleteProduct(id)
+        this.productService
+          .deleteProduct(id)
           .pipe(takeUntil(this.destroy$))
           .subscribe(() => {
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Successful',
-            detail: 'Product deleted',
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Successful',
+              detail: 'Product deleted',
+            });
+            this.products = this.products.filter((p) => p.id !== id);
+            this.selectedProducts = this.selectedProducts.filter(
+              (p) => p.id !== id
+            );
           });
-          this.products = this.products.filter((p) => p.id !== id);
-          this.selectedProducts = this.selectedProducts.filter((p) => p.id !== id)
-        });
       },
     });
   }
@@ -119,7 +129,8 @@ export class ProductsComponent implements OnInit, OnDestroy {
       accept: () => {
         this.selectedProducts.forEach((product) => {
           if (product.id) {
-            this.productService.deleteProduct(product.id)
+            this.productService
+              .deleteProduct(product.id)
               .pipe(takeUntil(this.destroy$))
               .subscribe();
           }
@@ -185,65 +196,66 @@ export class ProductsComponent implements OnInit, OnDestroy {
     forkJoin(uploadObservables)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-      next: (results) => {
-        // Фильтруем результаты, чтобы убрать null (ошибки)
-        const successfulUploads = results.filter((result) => result !== null);
+        next: (results) => {
+          // Фильтруем результаты, чтобы убрать null (ошибки)
+          const successfulUploads = results.filter((result) => result !== null);
 
-        if (successfulUploads.length === lengthUploadedFiles) {
-          // Если все файлы успешно загружены, выполняем updateProduct
+          if (successfulUploads.length === lengthUploadedFiles) {
+            // Если все файлы успешно загружены, выполняем updateProduct
 
-          if (!productDTO.images.length) {
-            // picture - 'no image available'
-            productDTO.images.push('https://i.imgur.com/jVfoZnP.jpg');
-          }
+            if (!productDTO.images.length) {
+              // picture - 'no image available'
+              productDTO.images.push('https://i.imgur.com/YDaXxIZ.png');
+              // productDTO.images.push('https://i.imgur.com/7ibKQZr.jpeg');
+            }
 
-          if (this.product.id) {
-            // Update product
-            this.productService
-              .updateProduct(this.product.id, productDTO)
-              .pipe(takeUntil(this.destroy$))
-              .subscribe({
-                next: (res) => {
-                  this.product = res;
-                  console.log('ProductUpdate:', res);
-                },
-                error: (err) => {
-                  console.log('ОШИБКА update:', err, productDTO);
-                },
-              });
+            if (this.product.id) {
+              // Update product
+              this.productService
+                .updateProduct(this.product.id, productDTO)
+                .pipe(takeUntil(this.destroy$))
+                .subscribe({
+                  next: (res) => {
+                    this.product = res;
+                    console.log('ProductUpdate:', res);
+                  },
+                  error: (err) => {
+                    console.log('ОШИБКА update:', err, productDTO);
+                  },
+                });
 
-            this.products[
-              this.products.findIndex(
-                (product) => product.id === this.product.id
-              )
-            ] = this.product;
-            this.products = [...this.products];
-            this.productDialog = false;
+              this.products[
+                this.products.findIndex(
+                  (product) => product.id === this.product.id
+                )
+              ] = this.product;
+              this.products = [...this.products];
+              this.productDialog = false;
+            } else {
+              // Create product
+              this.productService
+                .createProduct(productDTO)
+                .pipe(takeUntil(this.destroy$))
+                .subscribe({
+                  next: (res) => {
+                    this.product = res;
+                    console.log('ProductCreated:', res);
+                    this.products.push(this.product);
+                    this.productDialog = false;
+                  },
+                  error: (err) => {
+                    console.log('ОШИБКА create:', err, productDTO);
+                  },
+                });
+            }
           } else {
-            // Create product
-            this.productService
-              .createProduct(productDTO)
-              .pipe(takeUntil(this.destroy$))
-              .subscribe({
-                next: (res) => {
-                  this.product = res;
-                  console.log('ProductCreated:', res);
-                  this.products.push(this.product);
-                  this.productDialog = false;
-                },
-                error: (err) => {
-                  console.log('ОШИБКА create:', err, productDTO);
-                },
-              });
+            console.log('Не все файлы были успешно загружены');
           }
-        } else {
-          console.log('Не все файлы были успешно загружены');
-        }
-      },
-      error: (err) => {
-        console.log('ОШИБКА при загрузке файлов:', err);
-      },
-    });
+        },
+        error: (err) => {
+          console.log('ОШИБКА при загрузке файлов:', err);
+        },
+      });
   }
 
   openNew() {
@@ -294,8 +306,14 @@ export class ProductsComponent implements OnInit, OnDestroy {
 
   private sanitizer: DomSanitizer = inject(DomSanitizer);
   sanitizeImageUrl(imageUrl: any) {
-    let url = this.sanitizer.bypassSecurityTrustUrl(imageUrl);
-    // console.log('url:', url, imageUrl);
+    // из-за ограничений https://api.escuelajs.co по CROPS
+    // используется proxy, для этого неоьходимо удалить этот url
+    // чтобы обращался на локальный адрес
+
+    let url = this.sanitizer.bypassSecurityTrustResourceUrl(
+      imageUrl.replace('https://api.escuelajs.co/', '/')
+    );
+    console.log('url:', url, imageUrl);
 
     return url;
   }
