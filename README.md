@@ -4,26 +4,18 @@
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.2.8.
 
-## Development server
+This project serves as a demonstration of an administrative panel for managing products in a fictional store.  
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+For user authentication (JWT token, Refresh token, Interceptor, Guards), a local server built with Express is used ([backend-express](https://github.com/pzaydulin/backend-express)). Data management is implemented using NgRx (although excessive for this use case, it is included for demonstration purposes).  
 
-## Code scaffolding
+Product data is sourced from the [Platzi Fake Store API](https://fakeapi.platzi.com/).  
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+To handle data from multiple servers and bypass CORS restrictions for product image uploads, a proxy is utilized.  
 
-## Build
+Implemented features include:  
+- Multi-page product list navigation  
+- Bulk and individual product deletion  
+- Product addition and editing  
+- Image management (adding and removing product images)  
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
 
-## Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
